@@ -4,7 +4,6 @@ def count_safe_reports(filename):
 
         return all(1 <= abs(d) <= 3 for d in diffs) and (all(d > 0 for d in diffs) or all(d < 0 for d in diffs))
 
-
     with open(filename) as file:
         return sum(is_safe(list(map(int, line.split()))) for line in file)
 
