@@ -1,6 +1,5 @@
 def read_grid(filename):
-      with open(filename) as file:
-          return [line.strip() for line in file]
+    return [line.strip() for line in open(filename)]
 
 
 def count_x_mas(grid):
@@ -9,50 +8,20 @@ def count_x_mas(grid):
     def is_valid(x, y):
         return 0 <= x < rows and 0 <= y < cols
 
-    def is_x_mas(center_x, center_y):
-        # go verbose, no smart moves
-        normal_positions = [
-            (center_x - 1, center_y - 1, 'M'),  # top-left
-            (center_x - 1, center_y + 1, 'S'),  # top-right
-            (center_x, center_y, 'A'),          # center
-            (center_x + 1, center_y - 1, 'M'),  # bottom-left
-            (center_x + 1, center_y + 1, 'S')   # bottom-right
-        ]
-        flipped_positions = [
-            (center_x - 1, center_y - 1, 'S'),  # top-left
-            (center_x - 1, center_y + 1, 'M'),  # top-right
-            (center_x, center_y, 'A'),          # center
-            (center_x + 1, center_y - 1, 'S'),  # bottom-left
-            (center_x + 1, center_y + 1, 'M')   # bottom-right
-        ]
-        top_s_positions = [
-            (center_x - 1, center_y - 1, 'S'),  # top-left
-            (center_x - 1, center_y + 1, 'S'),  # top-right
-            (center_x, center_y, 'A'),          # center
-            (center_x + 1, center_y - 1, 'M'),  # bottom-left
-            (center_x + 1, center_y + 1, 'M')   # bottom-right
-        ]
-        top_m_positions = [
-            (center_x - 1, center_y - 1, 'M'),  # top-left
-            (center_x - 1, center_y + 1, 'M'),  # top-right
-            (center_x, center_y, 'A'),          # center
-            (center_x + 1, center_y - 1, 'S'),  # bottom-left
-            (center_x + 1, center_y + 1, 'S')   # bottom-right
-        ]
+    def is_x_mas(cx, cy, positions):
+        return all(is_valid(cx + dx, cy + dy) and grid[cx + dx][cy + dy] == char for dx, dy, char in positions)
 
-        return (
-            all(is_valid(x, y) and grid[x][y] == char for x, y, char in normal_positions) or
-            all(is_valid(x, y) and grid[x][y] == char for x, y, char in flipped_positions) or
-            all(is_valid(x, y) and grid[x][y] == char for x, y, char in top_s_positions) or
-            all(is_valid(x, y) and grid[x][y] == char for x, y, char in top_m_positions)
-        )
+    patterns = [
+        [(-1, -1, 'M'), (-1, 1, 'S'), (0, 0, 'A'), (1, -1, 'M'), (1, 1, 'S')],  # normal
+        [(-1, -1, 'S'), (-1, 1, 'M'), (0, 0, 'A'), (1, -1, 'S'), (1, 1, 'M')],  # flipped
+        [(-1, -1, 'S'), (-1, 1, 'S'), (0, 0, 'A'), (1, -1, 'M'), (1, 1, 'M')],  # top S
+        [(-1, -1, 'M'), (-1, 1, 'M'), (0, 0, 'A'), (1, -1, 'S'), (1, 1, 'S')]   # top M
+    ]
 
-    count = 0
-    # rows/cols - 1 to avoid grid edges
-    for i in range(1, rows - 1):
-        for j in range(1, cols - 1):
-            if is_x_mas(i, j):
-                count += 1
+    count = sum(
+        any(is_x_mas(i, j, pattern) for pattern in patterns)
+        for i in range(1, rows - 1) for j in range(1, cols - 1)
+    )
 
     return count
 
